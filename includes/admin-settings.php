@@ -34,9 +34,19 @@ function custom_admin_color_scheme_settings_page() {
             'buttons' => sanitize_hex_color($_POST['buttons']),
             'form_inputs' => sanitize_hex_color($_POST['form_inputs'])
         ]);
+
+        // Redireciona de volta para a página de configurações com uma mensagem de sucesso
+        $redirect_url = add_query_arg('settings-updated', 'true', admin_url('admin.php?page=custom-admin-colors'));
+        wp_redirect($redirect_url);
+        exit;
     } elseif (isset($_POST['reset'])) {
         check_admin_referer('custom_admin_colors_save', 'custom_admin_colors_nonce');
         update_option('custom_admin_colors', get_custom_admin_colors_defaults());
+        
+        // Redireciona de volta para a página de configurações com uma mensagem de reset
+        $redirect_url = add_query_arg('settings-reset', 'true', admin_url('admin.php?page=custom-admin-colors'));
+        wp_redirect($redirect_url);
+        exit;
     }
 
     $colors = get_custom_admin_colors();
@@ -49,7 +59,7 @@ function custom_admin_color_scheme_settings_page() {
             <table id="custom-admin-colors-settings-table" class="form-table custom-admin-colors">
                 <?php foreach ($colors as $key => $value): ?>
                     <tr>
-                        <td><input type="text" name="<?php echo $key; ?>" value="<?php echo esc_attr($value); ?>" class="color-picker" /></td>
+                        <td><input type="text" id="<?php echo $key . '_color'; ?>" name="<?php echo $key; ?>" value="<?php echo esc_attr($value); ?>" class="color-picker" /></td>
                         <th scope="row"><?php echo ucwords(str_replace('_', ' ', $key)); ?></th>
                     </tr>
                 <?php endforeach; ?>
@@ -65,3 +75,4 @@ function custom_admin_color_scheme_settings_page() {
     </script>
     <?php
 }
+

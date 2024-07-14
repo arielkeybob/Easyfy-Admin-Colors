@@ -1,11 +1,16 @@
 <?php
 function custom_admin_color_scheme_scripts() {
+    // Enqueue o WordPress Color Picker e seus estilos
     wp_enqueue_script('wp-color-picker');
     wp_enqueue_style('wp-color-picker');
+
+    // Enqueue o script customizado para pré-visualização ao vivo das mudanças de cor
+    wp_enqueue_script('custom-color-picker-live-preview', plugins_url('../js/live-preview.js', __FILE__), array('jquery', 'wp-color-picker'), false, true);
 }
 add_action('admin_enqueue_scripts', 'custom_admin_color_scheme_scripts');
 
 function custom_admin_color_scheme_settings_scripts($hook) {
+    // Certifica-se de que os estilos e scripts adicionais são carregados apenas na página de configurações do plugin
     if ($hook != 'toplevel_page_custom-admin-colors') {
         return;
     }
@@ -13,7 +18,6 @@ function custom_admin_color_scheme_settings_scripts($hook) {
 }
 add_action('admin_enqueue_scripts', 'custom_admin_color_scheme_settings_scripts');
 
-// Verifique se esta função está incluída no arquivo certo e está sendo chamada
 function custom_admin_color_scheme_apply() {
     $toggle_value = get_user_meta(get_current_user_id(), 'custom_admin_color_scheme_toggle', true);
     if ($toggle_value !== 'off') {
@@ -22,7 +26,7 @@ function custom_admin_color_scheme_apply() {
         $css = "
             #adminmenu a { color: {$colors['menu_text']} !important; }
             #adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap { background-color: {$colors['base_menu']} !important; }
-            #adminmenu li:hover > a, #adminmenu .wp-has-current-submenu > a { background-color: {$colors['highlight']} !important; }
+            #adminmenu li:hover > a, #adminmenu .wp-has-current-submenu > a, #adminmenu li.current a.menu-top { background-color: {$colors['highlight']} !important; }
             #adminmenu .awaiting-mod, #adminmenu .update-plugins { background-color: {$colors['notification']} !important; color: #ffffff !important; }
             .wp-core-ui .wp-ui-notification { background-color: {$colors['notification']} !important; color: #ffffff !important; }
             #wpcontent, #wpfooter { background-color: {$colors['background']} !important; }
