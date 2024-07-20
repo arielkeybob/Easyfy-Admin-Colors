@@ -7,48 +7,61 @@ jQuery(document).ready(function($) {
 
     var appliedStyles = {};
 
-    $('.color-picker').wpColorPicker({
+    // Função para carregar e aplicar as cores salvas
+    function loadSavedColors() {
+        var savedColors = easyfy_admin_colors_settings; // Usando a variável PHP local
+        if (savedColors) {
+            for (var colorName in savedColors) {
+                var color = savedColors[colorName];
+                var elementId = 'easyfy_admin_colors_settings[' + colorName + ']';
+                updateStyles(elementId, color);
+            }
+            styleTag.text(generateCompleteStyles());
+        }
+    }
+
+    $('.color-picker').each(function() {
+        var id = $(this).attr('id');
+        var color = $(this).val();
+        updateStyles(id, color);
+    }).wpColorPicker({
         change: function(event, ui) {
             var color = ui.color.toString();
-            var elementId = $(this).attr('id');
-
-            updateStyles(elementId, color);
-
+            var id = $(this).attr('id');
+            updateStyles(id, color);
             styleTag.text(generateCompleteStyles());
         },
         clear: function() {
-            var elementId = $(this).attr('id');
-
-            updateStyles(elementId, '');
-
+            var id = $(this).attr('id');
+            updateStyles(id, '');
             styleTag.text(generateCompleteStyles());
         }
     });
 
     function updateStyles(id, color) {
         switch(id) {
-            case 'menu_text_color':
+            case 'easyfy_admin_colors_settings[menu_text]':
                 appliedStyles['#adminmenu a'] = 'color: ' + color + ' !important;';
                 break;
-            case 'base_menu_color':
+            case 'easyfy_admin_colors_settings[base_menu]':
                 appliedStyles['#adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap'] = 'background-color: ' + color + ' !important;';
                 break;
-            case 'highlight_color':
+            case 'easyfy_admin_colors_settings[highlight]':
                 appliedStyles['#adminmenu li:hover > a, #adminmenu .wp-has-current-submenu > a, #adminmenu li.current a.menu-top'] = 'background-color: ' + color + ' !important;';
                 break;
-            case 'notification_color':
+            case 'easyfy_admin_colors_settings[notification]':
                 appliedStyles['#adminmenu .awaiting-mod, #adminmenu .update-plugins, .wp-core-ui .wp-ui-notification'] = 'background-color: ' + color + ' !important; color: #ffffff !important;';
                 break;
-            case 'background_color':
+            case 'easyfy_admin_colors_settings[background]':
                 appliedStyles['#wpcontent, #wpfooter'] = 'background-color: ' + color + ' !important;';
                 break;
-            case 'links_color':
+            case 'easyfy_admin_colors_settings[links]':
                 appliedStyles['#wpbody-content a, #wpbody a'] = 'color: ' + color + ' !important;';
                 break;
-            case 'buttons_color':
+            case 'easyfy_admin_colors_settings[buttons]':
                 appliedStyles['.wp-core-ui .button:not(.wp-color-result), .wp-core-ui .button-primary:not(.wp-color-result)'] = 'background-color: ' + color + ' !important; border-color: ' + color + ' !important;';
                 break;
-            case 'form_inputs_color':
+            case 'easyfy_admin_colors_settings[form_inputs]':
                 appliedStyles['input[type="text"], input[type="search"], textarea'] = 'background-color: ' + color + ' !important;';
                 break;
         }
@@ -63,4 +76,7 @@ jQuery(document).ready(function($) {
         }
         return styles;
     }
+
+    // Carrega as cores salvas ao inicializar
+    loadSavedColors();
 });
