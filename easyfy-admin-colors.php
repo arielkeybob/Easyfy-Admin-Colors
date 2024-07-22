@@ -6,8 +6,8 @@
  * Author: Ariel Souza
  */
 
-// Carrega a classe principal do plugin.
-require_once plugin_dir_path(__FILE__) . 'includes/ClassEasyfyAdminColors.php';
+// Inclui corretamente a classe principal do plugin.
+require_once __DIR__ . '/includes/ClassEasyfyAdminColors.php';
 
 // Executa o plugin.
 function run_easyfy_admin_colors() {

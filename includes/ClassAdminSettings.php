@@ -39,7 +39,6 @@ class ClassAdminSettings {
     }
 
     public function register_settings() {
-        error_log('Registering settings...');
         register_setting('easyfy_admin_colors_options', 'easyfy_admin_colors_settings', array($this, 'validate_inputs'));
 
         add_settings_section(
@@ -51,23 +50,18 @@ class ClassAdminSettings {
 
         $colors = get_custom_admin_colors();
 
-        if (is_array($colors)) {
-            foreach ($colors as $color_name => $default_value) {
-                add_settings_field(
-                    $color_name,
-                    ucwords(str_replace('_', ' ', $color_name)),
-                    array($this, 'color_picker_callback'),
-                    'easyfy-admin-colors',
-                    'easyfy_admin_colors_section',
-                    array(
-                        'id' => 'easyfy_admin_colors_settings[' . $color_name . ']',
-                        'default' => $default_value
-                    )
-                );
-            }
-        } else {
-            // Log error or notify admin
-            error_log('Expected an array from get_custom_admin_colors(), got: ' . gettype($colors));
+        foreach ($colors as $color_name => $default_value) {
+            add_settings_field(
+                $color_name,
+                ucwords(str_replace('_', ' ', $color_name)),
+                array($this, 'color_picker_callback'),
+                'easyfy-admin-colors',
+                'easyfy_admin_colors_section',
+                array(
+                    'id' => $color_name,
+                    'default' => $default_value
+                )
+            );
         }
     }
 
@@ -78,20 +72,15 @@ class ClassAdminSettings {
     }
 
     public function validate_inputs($inputs) {
-        if (is_array($inputs)) {
-            foreach ($inputs as $key => $value) {
-                $inputs[$key] = sanitize_hex_color($value);
-            }
+        foreach ($inputs as $key => $value) {
+            $inputs[$key] = sanitize_hex_color($value);
         }
-        // Adicionando log para depuração
-        error_log('Salvando as seguintes cores: ' . print_r($inputs, true));
         return $inputs;
     }
 }
 
 function get_custom_admin_colors() {
-    // Valores padrão
-    $defaults = [
+    return [
         'menu_text' => '#ffffff',
         'base_menu' => '#333333',
         'highlight' => '#0073aa',
@@ -101,16 +90,16 @@ function get_custom_admin_colors() {
         'buttons' => '#0073aa',
         'form_inputs' => '#ffffff'
     ];
-    // Busca as configurações atuais e usa os padrões se nada estiver salvo
-    $settings = get_option('easyfy_admin_colors_settings', $defaults);
-    return $settings;
 }
 
 
 
+/* Para debugar os valores salvos nos campos de cores */
+/*
 add_action('admin_notices', function() {
     $options = get_option('easyfy_admin_colors_settings');
     echo '<pre>';
     print_r($options);
     echo '</pre>';
 });
+*/
