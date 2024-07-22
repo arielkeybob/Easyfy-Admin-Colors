@@ -1,15 +1,21 @@
 jQuery(document).ready(function($) {
+    console.log("Script iniciado.");
+
+    // Verifica se a tag <style> com o ID 'dynamic-styles' já existe; se não, cria e adiciona ao <head>
     var styleTag = $('#dynamic-styles');
     if (styleTag.length === 0) {
         styleTag = $('<style id="dynamic-styles"></style>');
         $('head').append(styleTag);
+        console.log("Tag <style> criada e adicionada ao <head>.");
     }
 
+    // Objeto para armazenar os estilos CSS aplicados
     var appliedStyles = {};
 
-    // Função para carregar e aplicar as cores salvas
+    // Função para carregar e aplicar as configurações de cores salvas
     function loadSavedColors() {
-        var savedColors = easyfy_admin_colors_settings; // Usando a variável PHP local
+        var savedColors = easyfy_admin_colors_settings;
+        console.log("Cores salvas carregadas: ", savedColors);
         if (savedColors) {
             for (var colorName in savedColors) {
                 var color = savedColors[colorName];
@@ -17,28 +23,36 @@ jQuery(document).ready(function($) {
                 updateStyles(elementId, color);
             }
             styleTag.text(generateCompleteStyles());
+            console.log("Estilos iniciais aplicados.");
         }
     }
 
+    // Configura os color pickers e adiciona manipuladores de eventos para mudanças e limpeza de cores
     $('.color-picker').each(function() {
-        var id = $(this).attr('id');
-        var color = $(this).val();
-        updateStyles(id, color);
-    }).wpColorPicker({
-        change: function(event, ui) {
-            var color = ui.color.toString();
-            var id = $(this).attr('id');
-            updateStyles(id, color);
-            styleTag.text(generateCompleteStyles());
-        },
-        clear: function() {
-            var id = $(this).attr('id');
-            updateStyles(id, '');
-            styleTag.text(generateCompleteStyles());
-        }
+        $(this).wpColorPicker({
+            change: function(event, ui) {
+                var color = ui.color.toString();
+                var id = $(this).attr('id');
+                console.log(`Mudança detectada no picker ${id}: ${color}`);
+                updateStyles(id, color);
+                styleTag.text(generateCompleteStyles());
+            },
+            clear: function() {
+                var id = $(this).attr('id');
+                console.log(`Cor limpa no picker ${id}`);
+                updateStyles(id, '');
+                styleTag.text(generateCompleteStyles());
+            }
+        });
     });
 
+    // Atualiza os estilos conforme os IDs dos color pickers e as cores selecionadas
     function updateStyles(id, color) {
+        console.log(`Atualizando estilos para ${id} com a cor ${color}`);
+        // Certifica-se de que o ID esteja no formato esperado para o switch
+        if (!id.includes('easyfy_admin_colors_settings[')) {
+            id = 'easyfy_admin_colors_settings[' + id + ']';
+        }
         switch(id) {
             case 'easyfy_admin_colors_settings[menu_text]':
                 appliedStyles['#adminmenu a'] = 'color: ' + color + ' !important;';
@@ -67,6 +81,7 @@ jQuery(document).ready(function($) {
         }
     }
 
+    // Gera a string completa de estilos CSS com base nos estilos aplicados e os retorna
     function generateCompleteStyles() {
         var styles = '';
         for (var selector in appliedStyles) {
@@ -77,6 +92,6 @@ jQuery(document).ready(function($) {
         return styles;
     }
 
-    // Carrega as cores salvas ao inicializar
+    // Inicia o carregamento das cores configuradas
     loadSavedColors();
 });
