@@ -4,6 +4,7 @@ class ClassAdminSettings {
     public function __construct() {
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_post_reset_colors', array($this, 'reset_colors_settings')); // Hook para lidar com o reset
     }
 
     public function add_settings_page() {
@@ -28,6 +29,10 @@ class ClassAdminSettings {
                 do_settings_sections('easyfy-admin-colors');
                 submit_button('Save Changes');
                 ?>
+            </form>
+            <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+                <input type="hidden" name="action" value="reset_colors">
+                <input type="submit" class="button button-secondary" value="Reset to Default Colors">
             </form>
         </div>
         <script type="text/javascript">
@@ -77,6 +82,21 @@ class ClassAdminSettings {
         }
         return $inputs;
     }
+
+    public function reset_colors_settings() {
+        // Verifica se o usuário tem permissão para editar as opções
+        if (!current_user_can('manage_options')) {
+            wp_die('You do not have sufficient permissions to access this page.');
+        }
+
+        // Reseta as configurações para os valores padrão
+        $default_colors = get_custom_admin_colors();
+        update_option('easyfy_admin_colors_settings', $default_colors);
+
+        // Redireciona de volta à página de configurações
+        wp_redirect(admin_url('admin.php?page=easyfy-admin-colors'));
+        exit;
+    }
 }
 
 function get_custom_admin_colors() {
@@ -91,15 +111,3 @@ function get_custom_admin_colors() {
         'form_inputs' => '#ffffff'
     ];
 }
-
-
-
-/* Para debugar os valores salvos nos campos de cores */
-/*
-add_action('admin_notices', function() {
-    $options = get_option('easyfy_admin_colors_settings');
-    echo '<pre>';
-    print_r($options);
-    echo '</pre>';
-});
-*/
